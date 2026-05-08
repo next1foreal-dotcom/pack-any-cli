@@ -22,15 +22,15 @@ limited. It is meant to keep the project honest.
   installer formats are not abstracted yet.
 - Flutter packaging assumes the target project already has Windows desktop
   support enabled.
-- There is no stable config-file format yet. The CLI currently prefers explicit
-  command-line options.
+- The config-file format is intentionally small in v0.1 and only covers the
+  current CLI options. More adapter-specific fields can be added after real
+  packaging usage proves they are needed.
 - The project is a v0.1 orchestration CLI. It intentionally delegates hard
   platform-specific packaging behavior to upstream tools.
 
 ## Next Hardening Steps
 
-1. Add `pack-any.config.mjs` support for repeatable project settings.
-2. Add more precise preflight checks per adapter.
-3. Verify Go, Rust, Java, C/C++, and Flutter on matching toolchain machines.
-4. Add release packaging for the CLI itself.
-5. Publish to npm when command naming and config shape are settled.
+1. Add more precise preflight checks per adapter.
+2. Verify Go, Rust, Java, C/C++, and Flutter on matching toolchain machines.
+3. Add release packaging for the CLI itself.
+4. Publish to npm when command naming and config shape are settled.

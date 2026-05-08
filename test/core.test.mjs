@@ -8,6 +8,7 @@ import {
   detectProjectType,
   getAdapter,
   parseArgs,
+  resolveOptions,
   upstreamCredits,
 } from "../src/core.mjs";
 
@@ -94,6 +95,75 @@ async function testParseArgs() {
   assert.equal(parseArgs(["pack", "--type", "c++"]).type, "cpp");
   assert.equal(parseArgs(["pack", "--type", "csharp"]).type, "dotnet");
   assert.equal(parseArgs(["pack", "--type", "c#"]).type, "dotnet");
+  assert.equal(parseArgs(["pack", "--config", "pack-any.config.mjs"]).config, path.resolve("pack-any.config.mjs"));
+}
+
+async function testConfigFileResolvesOptions() {
+  await withTempProject({
+    "app.py": "print('hello')\n",
+    "pack-any.config.mjs": `export default {
+      type: "python",
+      project: ".",
+      entry: "app.py",
+      name: "configured-tool",
+      target: "win-x64",
+      checks: ["lint"],
+      verify: false,
+      skipInit: true
+    };\n`,
+  }, async (project) => {
+    const options = await resolveOptions(parseArgs(["pack", "--project", project]));
+    assert.equal(options.type, "python");
+    assert.equal(options.project, project);
+    assert.equal(options.entry, "app.py");
+    assert.equal(options.name, "configured-tool");
+    assert.deepEqual(options.checks, ["lint"]);
+    assert.equal(options.verify, false);
+    assert.equal(options.init, false);
+  });
+
+  await withTempProject({
+    "custom.json": JSON.stringify({
+      type: "python",
+      project: ".",
+      entry: "from-config.py",
+      name: "from-config",
+      checks: ["config-check"],
+    }),
+  }, async (project) => {
+    const options = await resolveOptions(parseArgs([
+      "pack",
+      "--config",
+      path.join(project, "custom.json"),
+      "--entry",
+      "from-cli.py",
+      "--check",
+      "cli-check",
+      "--name",
+      "from-cli",
+    ]));
+    assert.equal(options.project, project);
+    assert.equal(options.entry, "from-cli.py");
+    assert.equal(options.name, "from-cli");
+    assert.deepEqual(options.checks, ["cli-check"]);
+  });
+
+  await withTempProject({
+    "bom.json": `\uFEFF${JSON.stringify({ type: "python", project: ".", entry: "app.py" })}`,
+  }, async (project) => {
+    const options = await resolveOptions(parseArgs(["pack", "--config", path.join(project, "bom.json")]));
+    assert.equal(options.type, "python");
+    assert.equal(options.project, project);
+    assert.equal(options.entry, "app.py");
+  });
+
+  await withTempProject({
+    "pack-any.config.json": JSON.stringify({ type: "typescript", productName: "Friendly Name" }),
+  }, async (project) => {
+    const options = await resolveOptions(parseArgs(["pack", "--project", project]));
+    assert.equal(options.productName, "Friendly Name");
+    assert.equal(options.name, "Friendly Name");
+  });
 }
 
 async function testPlansUseAdapters() {
@@ -233,6 +303,7 @@ async function testAdapterRegistryAndCredits() {
 await testDetectsCommonProjects();
 await testMissingProjectHasActionableError();
 await testParseArgs();
+await testConfigFileResolvesOptions();
 await testPlansUseAdapters();
 await testInitRejectsAdaptersWithoutInit();
 await testAdapterRegistryAndCredits();

@@ -9,6 +9,7 @@ const expectedFiles = [
   "src/cli/args.mjs",
   "src/cli/help.mjs",
   "src/core/detect.mjs",
+  "src/core/config.mjs",
   "src/core/plan.mjs",
   "src/core/runner.mjs",
   "src/adapters/index.mjs",

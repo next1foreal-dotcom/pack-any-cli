@@ -5,6 +5,7 @@ import {
   detectProjectType,
   helpText,
   parseArgs,
+  resolveOptions,
   runPlan,
   upstreamCredits,
 } from "../src/core.mjs";
@@ -22,17 +23,18 @@ async function main() {
   }
 
   if (options.command === "detect") {
-    console.log(await detectProjectType(options.project));
+    const resolved = await resolveOptions(options);
+    console.log(await detectProjectType(resolved.project));
     return;
   }
 
   if (options.command === "init") {
-    await runPlan(await createDetectedInitPlan(options));
+    await runPlan(await createDetectedInitPlan(await resolveOptions(options)));
     return;
   }
 
   if (options.command === "pack") {
-    await runPlan(await createDetectedPlan(options));
+    await runPlan(await createDetectedPlan(await resolveOptions(options)));
   }
 }
 

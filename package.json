@@ -37,6 +37,8 @@
     "README.md",
     "README.zh-CN.md",
     "ACKNOWLEDGEMENTS.md",
+    "CONTRIBUTING.md",
+    "docs/",
     "LICENSE"
   ],
   "publishConfig": {

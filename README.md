@@ -74,6 +74,7 @@ The intended module shape is:
 ```powershell
 node bin\pack-any.mjs --help
 node bin\pack-any.mjs detect --project D:\path\to\app
+node bin\pack-any.mjs pack --config D:\path\to\app\pack-any.config.mjs
 node bin\pack-any.mjs pack --project D:\path\to\next-app --type next-electron --target win-x64
 node bin\pack-any.mjs pack --project D:\path\to\ts-app --type typescript --entry dist\index.js
 node bin\pack-any.mjs pack --project D:\path\to\python-app --type python --entry app.py
@@ -125,6 +126,39 @@ After linking locally:
 npm link
 pack-any pack --project D:\path\to\app
 ```
+
+## Config Files
+
+`pack-any` can read project defaults from:
+
+- `pack-any.config.mjs`
+- `pack-any.config.js`
+- `pack-any.config.json`
+
+When no `--config` is passed, the CLI looks for those files in `--project`
+or the current directory. Command-line flags always override config values.
+
+```js
+// pack-any.config.mjs
+export default {
+  type: "next-electron",
+  project: ".",
+  productName: "My App",
+  target: "win-x64",
+  checks: ["lint", "test"],
+  verify: true
+};
+```
+
+Then run:
+
+```powershell
+pack-any pack
+```
+
+Supported config fields mirror the current CLI options:
+`type`, `project`, `target`, `entry`, `input`, `mainClass`, `name`,
+`productName`, `checks`, `verify`, `init`, and `skipInit`.
 
 ## Next / Electron Example
 

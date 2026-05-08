@@ -72,6 +72,7 @@ pack-any-cli/
 ```powershell
 node bin\pack-any.mjs --help
 node bin\pack-any.mjs detect --project D:\path\to\app
+node bin\pack-any.mjs pack --config D:\path\to\app\pack-any.config.mjs
 node bin\pack-any.mjs pack --project D:\path\to\next-app --type next-electron --target win-x64
 node bin\pack-any.mjs pack --project D:\path\to\ts-app --type typescript --entry dist\index.js
 node bin\pack-any.mjs pack --project D:\path\to\python-app --type python --entry app.py
@@ -89,6 +90,38 @@ node bin\pack-any.mjs pack --project D:\path\to\cpp-app --type cpp
 npm link
 pack-any pack --project D:\path\to\app
 ```
+
+## 配置文件
+
+`pack-any` 可以从项目配置文件读取默认参数：
+
+- `pack-any.config.mjs`
+- `pack-any.config.js`
+- `pack-any.config.json`
+
+没有传 `--config` 时，CLI 会在 `--project` 指向的目录或当前目录里自动查找这些文件。命令行参数优先级更高，会覆盖配置文件里的同名字段。
+
+```js
+// pack-any.config.mjs
+export default {
+  type: "next-electron",
+  project: ".",
+  productName: "My App",
+  target: "win-x64",
+  checks: ["lint", "test"],
+  verify: true
+};
+```
+
+之后可以直接运行：
+
+```powershell
+pack-any pack
+```
+
+当前支持的配置字段和 CLI 参数保持一致：
+`type`、`project`、`target`、`entry`、`input`、`mainClass`、`name`、
+`productName`、`checks`、`verify`、`init`、`skipInit`。
 
 ## 样例验证
 
