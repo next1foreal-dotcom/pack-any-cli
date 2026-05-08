@@ -1,10 +1,18 @@
 # pack-any-cli
 
+[![CI](https://github.com/next1foreal-dotcom/pack-any-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/next1foreal-dotcom/pack-any-cli/actions/workflows/ci.yml)
+
 简体中文 | [English](./README.md)
 
 `pack-any` 是一个轻量级打包编排 CLI，用统一命令调用成熟的上游打包工具链，把常见项目打成 Windows 可执行文件或安装包。
 
 它不是要替代 PyInstaller、electron-builder、jpackage、Cargo、Go 等工具，而是站在这些项目作者和维护者的肩膀上，把常见打包流程整理成更容易给人和 Agent 使用的一套入口。
+
+## 当前状态
+
+这是一个 v0.1 版本的打包编排 CLI。核心 CLI、项目识别、适配器计划生成，以及部分真实打包流程已经验证；部分适配器仍需要在安装了对应工具链的机器上继续做完整验证。
+
+当前验证范围和已知边界见 [docs/QUALITY.md](./docs/QUALITY.md)。
 
 ## 支持的适配器
 
@@ -199,3 +207,7 @@ pack-any credits
 ```
 
 也可以阅读 [ACKNOWLEDGEMENTS.md](./ACKNOWLEDGEMENTS.md)。
+
+## 贡献
+
+欢迎补充适配器，但项目定位要保持清晰：`pack-any` 是成熟上游工具的薄编排层，不是重写这些工具。贡献说明见 [CONTRIBUTING.md](./CONTRIBUTING.md)。

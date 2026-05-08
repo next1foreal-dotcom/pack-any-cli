@@ -34,7 +34,13 @@ const expectedFiles = [
   "src/adapters/next-electron/templates/prepare-electron-next.mjs",
   "src/core.mjs",
   "README.md",
+  "README.zh-CN.md",
   "ACKNOWLEDGEMENTS.md",
+  "LICENSE",
+  "CONTRIBUTING.md",
+  "docs/QUALITY.md",
+  ".gitattributes",
+  ".github/workflows/ci.yml",
 ];
 
 const forbiddenFiles = [

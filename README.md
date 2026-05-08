@@ -1,9 +1,20 @@
 # pack-any-cli
 
+[![CI](https://github.com/next1foreal-dotcom/pack-any-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/next1foreal-dotcom/pack-any-cli/actions/workflows/ci.yml)
+
 [简体中文](./README.zh-CN.md) | English
 
 `pack-any` is a small orchestration CLI for packaging common project types by
 calling proven upstream toolchains. It is not a replacement for those tools.
+
+## Status
+
+This is a v0.1 orchestration CLI. The core CLI, project detection, adapter plan
+generation, and several real packaging flows are verified. Some adapters still
+need full machine-level verification on systems with the matching toolchains.
+
+See [docs/QUALITY.md](./docs/QUALITY.md) for the current verification matrix
+and known limits.
 
 ## Supported v1 Adapters
 
@@ -208,3 +219,9 @@ pack-any credits
 ```
 
 See [ACKNOWLEDGEMENTS.md](./ACKNOWLEDGEMENTS.md) for details.
+
+## Contributing
+
+Adapter contributions are welcome when they keep the project as a thin
+orchestration layer over proven upstream tools. See
+[CONTRIBUTING.md](./CONTRIBUTING.md).

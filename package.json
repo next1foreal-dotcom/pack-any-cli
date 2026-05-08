@@ -2,14 +2,50 @@
   "name": "pack-any-cli",
   "version": "0.1.0",
   "description": "A small orchestration CLI that packages common project types by calling proven upstream toolchains.",
-  "private": true,
   "type": "module",
   "license": "MIT",
+  "author": "next1foreal-dotcom",
+  "homepage": "https://github.com/next1foreal-dotcom/pack-any-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/next1foreal-dotcom/pack-any-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/next1foreal-dotcom/pack-any-cli/issues"
+  },
+  "keywords": [
+    "packaging",
+    "cli",
+    "electron",
+    "pyinstaller",
+    "typescript",
+    "dotnet",
+    "go",
+    "rust",
+    "jpackage",
+    "cmake"
+  ],
   "bin": {
     "pack-any": "./bin/pack-any.mjs"
   },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "README.zh-CN.md",
+    "ACKNOWLEDGEMENTS.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "node test/core.test.mjs && node test/structure.test.mjs",
+    "smoke": "node bin/pack-any.mjs --help && node bin/pack-any.mjs credits",
+    "check": "npm test && npm run smoke",
     "verify:samples": "node scripts/verify-samples.mjs",
     "demo:fashion": "node bin/pack-any.mjs pack --project ../fashion-ai --type next-electron --target win-x64 --check check:contracts --check check:input-gates --check check:video-features"
   }
