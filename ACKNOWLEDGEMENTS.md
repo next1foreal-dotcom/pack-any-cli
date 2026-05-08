@@ -6,23 +6,31 @@ or reimplement those projects.
 
 ## Primary Upstream Projects
 
-- [Electron](https://www.electronjs.org/) provides the desktop runtime for web apps.
-- [electron-builder](https://www.electron.build/) provides Electron packaging and installer generation.
-- [Next.js](https://nextjs.org/) provides the standalone server output used by the Next/Electron adapter.
-- [NSIS](https://nsis.sourceforge.io/) is used by electron-builder's Windows installer target.
-- [TypeScript](https://www.typescriptlang.org/) provides the compiler for TypeScript projects.
-- [Node.js](https://nodejs.org/) provides the runtime targeted by the TypeScript adapter.
-- [yao-pkg](https://github.com/yao-pkg/pkg) packages Node.js applications into executables.
-- [Python](https://www.python.org/) provides the Python runtime and packaging ecosystem.
-- [PyInstaller](https://pyinstaller.org/) packages Python applications into executables.
-- [Nuitka](https://nuitka.net/) is acknowledged as a planned Python alternative adapter.
-- [Go](https://go.dev/) provides the `go build` toolchain.
-- [.NET](https://dotnet.microsoft.com/) provides `dotnet publish` for self-contained applications.
-- [Java](https://www.java.com/) and the JDK provide `jpackage` for native packaging.
-- [Maven](https://maven.apache.org/) and [Gradle](https://gradle.org/) are used for Java builds.
-- [Rust](https://www.rust-lang.org/) and [Cargo](https://doc.rust-lang.org/cargo/) provide Rust builds.
-- [Flutter](https://flutter.dev/) provides Windows desktop builds for Flutter apps.
-- [CMake](https://cmake.org/) coordinates C and C++ native builds.
+| Project | Role in `pack-any` | Typical license |
+| --- | --- | --- |
+| [Electron](https://www.electronjs.org/) | Desktop runtime for web apps | MIT |
+| [electron-builder](https://www.electron.build/) | Electron packaging and installer generation | MIT |
+| [Next.js](https://nextjs.org/) | Standalone server output used by the Next/Electron adapter | MIT |
+| [NSIS](https://nsis.sourceforge.io/) | Windows installer target used through electron-builder | zlib/libpng style license |
+| [TypeScript](https://www.typescriptlang.org/) | TypeScript compiler | Apache-2.0 |
+| [Node.js](https://nodejs.org/) | Runtime targeted by the TypeScript adapter | MIT, with bundled third-party notices |
+| [yao-pkg](https://github.com/yao-pkg/pkg) | Packages Node.js applications into executables | MIT |
+| [Python](https://www.python.org/) | Python runtime and packaging ecosystem | PSF License Agreement |
+| [PyInstaller](https://pyinstaller.org/) | Packages Python applications into executables | GPL-2.0 with PyInstaller bootloader exception |
+| [Nuitka](https://nuitka.net/) | Planned Python alternative adapter | AGPL-3.0 with runtime exception in the current upstream repository; older releases may differ |
+| [Go](https://go.dev/) | `go build` toolchain | BSD-3-Clause |
+| [.NET](https://dotnet.microsoft.com/) | `dotnet publish` for self-contained applications | MIT |
+| [Java / OpenJDK](https://openjdk.org/) | JDK tools such as `jpackage` | GPL-2.0 with Classpath Exception |
+| [Maven](https://maven.apache.org/) | Java builds | Apache-2.0 |
+| [Gradle](https://gradle.org/) | Java builds | Apache-2.0 |
+| [Rust](https://www.rust-lang.org/) | Rust builds | MIT OR Apache-2.0 |
+| [Cargo](https://doc.rust-lang.org/cargo/) | Rust package manager and build tool | MIT OR Apache-2.0 |
+| [Flutter](https://flutter.dev/) | Flutter Windows desktop builds | BSD-3-Clause |
+| [CMake](https://cmake.org/) | C and C++ native build coordination | BSD-3-Clause |
+
+License names above are a practical reference for orientation. Always review
+the current upstream license files before redistributing those tools or bundled
+outputs.
 
 ## Project Positioning
 
@@ -40,4 +48,5 @@ adds glue code, templates, conventions, and smoke verification.
 ## License Note
 
 Before redistributing packaged applications, review the licenses of the target
-application and its dependencies. This acknowledgement is not legal advice.
+application, its dependencies, and the upstream packaging tools involved. This
+acknowledgement is not legal advice.
