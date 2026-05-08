@@ -1,0 +1,56 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+
+const root = path.resolve(import.meta.dirname, "..");
+
+const expectedFiles = [
+  "bin/pack-any.mjs",
+  "src/cli/args.mjs",
+  "src/cli/help.mjs",
+  "src/core/detect.mjs",
+  "src/core/plan.mjs",
+  "src/core/runner.mjs",
+  "src/adapters/index.mjs",
+  "src/adapters/next-electron/adapter.mjs",
+  "src/adapters/next-electron/init.mjs",
+  "src/adapters/next-electron/outputs.mjs",
+  "src/adapters/python/pyinstaller.mjs",
+  "src/adapters/typescript/pkg.mjs",
+  "src/adapters/go/adapter.mjs",
+  "src/adapters/dotnet/adapter.mjs",
+  "src/adapters/java/jpackage.mjs",
+  "src/adapters/rust/cargo.mjs",
+  "src/adapters/flutter/adapter.mjs",
+  "src/adapters/cpp/cmake.mjs",
+  "src/verify/next-electron-launch.mjs",
+  "src/utils/naming.mjs",
+  "src/utils/package-manager.mjs",
+  "src/utils/target.mjs",
+  "src/utils/command.mjs",
+  "src/utils/fs.mjs",
+  "src/adapters/next-electron/templates/electron-main.cjs",
+  "src/adapters/next-electron/templates/electron-preload.cjs",
+  "src/adapters/next-electron/templates/prepare-electron-next.mjs",
+  "src/core.mjs",
+  "README.md",
+  "ACKNOWLEDGEMENTS.md",
+];
+
+const forbiddenFiles = [
+  "src/adapters/next-electron.mjs",
+  "src/adapters/python-pyinstaller.mjs",
+  "src/adapters/go.mjs",
+  "src/adapters/dotnet.mjs",
+  "src/templates/next-electron/electron-main.cjs",
+];
+
+for (const file of expectedFiles) {
+  assert.equal(fs.existsSync(path.join(root, file)), true, `Missing expected project file: ${file}`);
+}
+
+for (const file of forbiddenFiles) {
+  assert.equal(fs.existsSync(path.join(root, file)), false, `Old flat file should be removed: ${file}`);
+}
+
+console.log("pack-any structure tests passed");

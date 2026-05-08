@@ -1,0 +1,16 @@
+{
+  "name": "pack-any-cli",
+  "version": "0.1.0",
+  "description": "A small orchestration CLI that packages common project types by calling proven upstream toolchains.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "pack-any": "./bin/pack-any.mjs"
+  },
+  "scripts": {
+    "test": "node test/core.test.mjs && node test/structure.test.mjs",
+    "verify:samples": "node scripts/verify-samples.mjs",
+    "demo:fashion": "node bin/pack-any.mjs pack --project ../fashion-ai --type next-electron --target win-x64 --check check:contracts --check check:input-gates --check check:video-features"
+  }
+}

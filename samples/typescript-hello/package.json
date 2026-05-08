@@ -1,0 +1,10 @@
+{
+  "name": "typescript-hello",
+  "version": "0.1.0",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  }
+}

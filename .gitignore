@@ -1,0 +1,14 @@
+node_modules/
+
+# Generated package outputs
+samples/**/dist/
+samples/**/build/
+samples/**/bin/
+samples/**/obj/
+samples/**/target/
+samples/**/*.spec
+
+# Logs and local OS/editor noise
+*.log
+.DS_Store
+Thumbs.db
