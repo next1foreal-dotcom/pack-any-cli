@@ -1,5 +1,7 @@
 # pack-any-cli
 
+[简体中文](./README.zh-CN.md) | English
+
 `pack-any` is a small orchestration CLI for packaging common project types by
 calling proven upstream toolchains. It is not a replacement for those tools.
 
