@@ -30,12 +30,7 @@ if (!(await exists(path.join(standaloneDir, "server.js")))) {
 }
 
 await fs.rm(electronNextDir, { recursive: true, force: true });
-await fs.cp(standaloneDir, electronNextDir, {
-  recursive: true,
-  filter(source) {
-    return !source.split(path.sep).includes("node_modules");
-  },
-});
+await fs.cp(standaloneDir, electronNextDir, { recursive: true });
 await copyIfPresent(staticSource, staticTarget);
 await copyIfPresent(publicSource, publicTarget);
 

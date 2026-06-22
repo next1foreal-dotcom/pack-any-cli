@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { pathToFileURL } from "node:url";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -416,6 +417,39 @@ async function testWorkflowDefaultsToDmgTarget() {
   });
 }
 
+async function testNextElectronPrepareCopiesStandaloneDependencies() {
+  const templatePath = path.resolve("src", "adapters", "next-electron", "templates", "prepare-electron-next.mjs");
+  const template = await fs.readFile(templatePath, "utf8");
+
+  await withTempProject({
+    "scripts/prepare-electron-next.mjs": template,
+    ".next/standalone/server.js": "console.log('server');\n",
+    ".next/standalone/node_modules/demo-package/index.js": "module.exports = 'demo';\n",
+    ".next/static/chunk.js": "console.log('static');\n",
+    "public/logo.txt": "logo\n",
+  }, async (project) => {
+    const scriptUrl = pathToFileURL(path.join(project, "scripts", "prepare-electron-next.mjs"));
+    scriptUrl.searchParams.set("t", Date.now().toString());
+    await import(scriptUrl.href);
+
+    const copiedDependency = path.join(project, ".electron-next", "node_modules", "demo-package", "index.js");
+    const copiedStatic = path.join(project, ".electron-next", ".next", "static", "chunk.js");
+    const copiedPublic = path.join(project, ".electron-next", "public", "logo.txt");
+    assert.equal(await fileExists(copiedDependency), true);
+    assert.equal(await fileExists(copiedStatic), true);
+    assert.equal(await fileExists(copiedPublic), true);
+  });
+}
+
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function testAdapterRegistryAndCredits() {
   assert.equal(getAdapter("next-electron").type, "next-electron");
   assert.equal(getAdapter("vite-electron").type, "vite-electron");
@@ -448,6 +482,7 @@ await testInitRejectsAdaptersWithoutInit();
 await testViteInitPatchesPackageJson();
 await testWorkflowWritesMacosBuildFile();
 await testWorkflowDefaultsToDmgTarget();
+await testNextElectronPrepareCopiesStandaloneDependencies();
 await testAdapterRegistryAndCredits();
 
 console.log("pack-any core tests passed");
