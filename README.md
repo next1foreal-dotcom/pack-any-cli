@@ -4,23 +4,26 @@
 
 [简体中文](./README.zh-CN.md) | English
 
+Current version: `0.2.1`.
+
 `pack-any` is a small orchestration CLI for packaging common project types by
 calling proven upstream toolchains. It is not a replacement for those tools.
 
 ## Status
 
-This is a v0.1 orchestration CLI. The core CLI, project detection, adapter plan
+This is a v0.2 orchestration CLI. The core CLI, project detection, adapter plan
 generation, and several real packaging flows are verified. Some adapters still
 need full machine-level verification on systems with the matching toolchains.
 
 See [docs/QUALITY.md](./docs/QUALITY.md) for the current verification matrix
 and known limits.
 
-## Supported v1 Adapters
+## Supported Adapters
 
 | Type | Detects | Upstream toolchain | Typical command |
 | --- | --- | --- | --- |
 | `next-electron` | `package.json` with Next.js | Electron, electron-builder, Next.js, NSIS | `electron-builder --win nsis` |
+| `vite-electron` | `package.json` with Vite and `index.html` | Electron, electron-builder, Vite | `electron-builder --mac dmg` or `electron-builder --win nsis` |
 | `typescript` | `tsconfig.json`, TypeScript dependency | TypeScript, Node.js, yao-pkg | `tsc`, `@yao-pkg/pkg` |
 | `python` | `pyproject.toml`, `requirements.txt` | Python, PyInstaller, optional Nuitka later | `python -m PyInstaller --onefile` |
 | `go` | `go.mod` | Go toolchain | `go build` |
@@ -44,6 +47,8 @@ pack-any-cli/
     adapters/                     one adapter per upstream packaging toolchain
       next-electron/              Next.js + Electron + electron-builder adapter
         templates/                files written into target Next projects
+      vite-electron/              Vite + Electron + electron-builder adapter
+        templates/                files written into target Vite projects
       typescript/                 tsc + yao-pkg adapter
       python/                     PyInstaller adapter
       go/                         go build adapter
@@ -76,6 +81,9 @@ node bin\pack-any.mjs --help
 node bin\pack-any.mjs detect --project D:\path\to\app
 node bin\pack-any.mjs pack --config D:\path\to\app\pack-any.config.mjs
 node bin\pack-any.mjs pack --project D:\path\to\next-app --type next-electron --target win-x64
+node bin\pack-any.mjs pack --project D:\path\to\vite-app --type vite-electron --target mac-arm64
+node bin\pack-any.mjs pack --project D:\path\to\vite-app --type vite-electron --target dmg
+node bin\pack-any.mjs workflow --project D:\path\to\vite-app --type vite-electron --target dmg
 node bin\pack-any.mjs pack --project D:\path\to\ts-app --type typescript --entry dist\index.js
 node bin\pack-any.mjs pack --project D:\path\to\python-app --type python --entry app.py
 node bin\pack-any.mjs pack --project D:\path\to\go-app --type go
@@ -170,6 +178,46 @@ This adapter writes Electron launcher files into the target project, patches
 `package.json`, enables Next standalone output, builds the app, runs optional
 checks, creates a Windows installer, and verifies launch when possible.
 
+## Vite / Electron Example
+
+```powershell
+pack-any init --project D:\path\to\vite-app --type vite-electron --product-name "My App"
+pack-any pack --project D:\path\to\vite-app --type vite-electron --target win-x64
+pack-any pack --project D:\path\to\vite-app --type vite-electron --target mac-arm64
+pack-any pack --project D:\path\to\vite-app --type vite-electron --target dmg
+pack-any workflow --project D:\path\to\vite-app --type vite-electron --target dmg
+```
+
+The `vite-electron` adapter writes Electron launcher files, patches
+`package.json`, builds the Vite app, calls electron-builder, and prints any
+`.exe`, `.app`, or `.dmg` outputs it can find.
+
+Supported Electron targets:
+
+| Target | Output intent | Host requirement |
+| --- | --- | --- |
+| `win-x64` | Windows NSIS installer | Windows recommended |
+| `win-arm64` | Windows ARM64 NSIS installer | Windows recommended |
+| `mac-x64` | Intel macOS DMG | macOS required |
+| `mac-arm64` | Apple Silicon macOS DMG | macOS required |
+| `mac-universal` | Universal macOS DMG | macOS required |
+| `dmg` | Alias for universal macOS DMG | macOS required |
+| `dir` | Unpacked Electron app for the current platform | Matching platform recommended |
+| `mac-dir` | Unpacked macOS `.app` | macOS required |
+
+If the target project has `server/index.mjs`, init records it under
+`package.json` as `packAny.electron.serverEntry`. The generated Electron main
+process starts that backend before loading the Vite UI. Adjust
+`packAny.electron.serverPort` or `packAny.electron.serverHealthPath` when a
+project uses a different local API port or health route.
+
+The `workflow` command writes `.github/workflows/build-macos.yml` into the
+target project. The generated workflow is manual-only (`workflow_dispatch`), so
+private repositories do not spend GitHub Actions minutes on every push. It runs
+on `macos-latest`, installs npm dependencies, builds the Vite app, creates the
+macOS package with electron-builder, checks that a `.dmg`, `.zip`, or `.app`
+exists, and uploads the result as a workflow artifact.
+
 ## TypeScript Example
 
 ```powershell
@@ -242,7 +290,7 @@ choose a custom build directory.
 ## Acknowledgements
 
 This project stands on the shoulders of the authors and maintainers of Electron,
-electron-builder, Next.js, TypeScript, Node.js, yao-pkg, PyInstaller, Python,
+electron-builder, Vite, Next.js, TypeScript, Node.js, yao-pkg, PyInstaller, Python,
 Go, .NET, Java, jpackage, Cargo, Flutter, CMake, and NSIS. `pack-any` only wires
 those tools into a repeatable workflow.
 
@@ -253,6 +301,7 @@ pack-any credits
 ```
 
 See [ACKNOWLEDGEMENTS.md](./ACKNOWLEDGEMENTS.md) for details.
+See [CHANGELOG.md](./CHANGELOG.md) for versioned capability notes.
 
 ## Contributing
 

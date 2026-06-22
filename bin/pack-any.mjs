@@ -2,6 +2,7 @@
 import {
   createDetectedPlan,
   createDetectedInitPlan,
+  createDetectedWorkflowPlan,
   detectProjectType,
   helpText,
   parseArgs,
@@ -35,6 +36,11 @@ async function main() {
 
   if (options.command === "pack") {
     await runPlan(await createDetectedPlan(await resolveOptions(options)));
+    return;
+  }
+
+  if (options.command === "workflow") {
+    await runPlan(await createDetectedWorkflowPlan(await resolveOptions(options)));
   }
 }
 

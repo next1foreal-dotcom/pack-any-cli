@@ -10,6 +10,11 @@ limited. It is meant to keep the project honest.
 - Adapter plan generation has automated tests.
 - `next-electron`, `python`, `typescript`, and `.NET` have been exercised with
   real packaging flows on the maintainer machine.
+- `vite-electron` has automated detection, init, plan, and structure tests.
+- `vite-electron` macOS targets are represented in plan generation:
+  `mac-x64`, `mac-arm64`, `mac-universal`, `dmg`, and `mac-dir`.
+- `workflow` has automated coverage for writing a manual GitHub Actions macOS
+  build file and refusing to overwrite an existing workflow file.
 - `verify:samples` builds and runs tiny sample executables when the matching
   toolchain is installed.
 - Missing sample toolchains are reported as `skipped`, not counted as success.
@@ -22,10 +27,15 @@ limited. It is meant to keep the project honest.
   installer formats are not abstracted yet.
 - Flutter packaging assumes the target project already has Windows desktop
   support enabled.
-- The config-file format is intentionally small in v0.1 and only covers the
+- `vite-electron` macOS artifact creation and `.app` launch verification require
+  a macOS host. Windows can generate the plan, but it cannot prove the Mac app.
+- `vite-electron` backend startup assumes a local Node entry such as
+  `server/index.mjs`. Projects with custom backends should set
+  `packAny.electron.serverEntry`, `serverPort`, and `serverHealthPath`.
+- The config-file format is intentionally small in v0.2 and only covers the
   current CLI options. More adapter-specific fields can be added after real
   packaging usage proves they are needed.
-- The project is a v0.1 orchestration CLI. It intentionally delegates hard
+- The project is a v0.2 orchestration CLI. It intentionally delegates hard
   platform-specific packaging behavior to upstream tools.
 
 ## Next Hardening Steps

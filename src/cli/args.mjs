@@ -28,8 +28,8 @@ export function parseArgs(argv) {
     options.command = "credits";
     return options;
   }
-  if (!["detect", "init", "pack"].includes(command)) {
-    throw new Error(`Unknown command "${command}". Use detect, init, pack, or credits.`);
+  if (!["detect", "init", "pack", "workflow"].includes(command)) {
+    throw new Error(`Unknown command "${command}". Use detect, init, pack, workflow, or credits.`);
   }
   options.command = command;
 

@@ -5,6 +5,7 @@ import path from "node:path";
 import {
   createPlan,
   createDetectedInitPlan,
+  createDetectedWorkflowPlan,
   detectProjectType,
   getAdapter,
   parseArgs,
@@ -25,6 +26,13 @@ async function withTempProject(files, callback) {
 async function testDetectsCommonProjects() {
   await withTempProject({ "package.json": "{\"dependencies\":{\"next\":\"16.0.0\"}}" }, async (project) => {
     assert.equal(await detectProjectType(project), "next-electron");
+  });
+  await withTempProject({
+    "package.json": "{\"devDependencies\":{\"vite\":\"latest\",\"typescript\":\"latest\"}}",
+    "index.html": "<div id=\"root\"></div>",
+    "tsconfig.json": "{}",
+  }, async (project) => {
+    assert.equal(await detectProjectType(project), "vite-electron");
   });
   await withTempProject({
     "package.json": "{\"devDependencies\":{\"typescript\":\"latest\"}}",
@@ -96,6 +104,7 @@ async function testParseArgs() {
   assert.equal(parseArgs(["pack", "--type", "csharp"]).type, "dotnet");
   assert.equal(parseArgs(["pack", "--type", "c#"]).type, "dotnet");
   assert.equal(parseArgs(["pack", "--config", "pack-any.config.mjs"]).config, path.resolve("pack-any.config.mjs"));
+  assert.equal(parseArgs(["workflow", "--type", "vite-electron"]).command, "workflow");
 }
 
 async function testConfigFileResolvesOptions() {
@@ -212,6 +221,42 @@ async function testPlansUseAdapters() {
     "Show output paths",
   ]);
 
+  const vitePlan = createPlan({
+    command: "pack",
+    project,
+    type: "vite-electron",
+    target: "win-x64",
+    checks: ["test"],
+    verify: false,
+    init: true,
+  });
+  assert.deepEqual(vitePlan.steps.map((step) => step.name), [
+    "Initialize Vite Electron packaging",
+    "Build Vite app",
+    "Run test",
+    "Build Windows installer",
+    "Show output paths",
+  ]);
+  assert.deepEqual(vitePlan.steps[3].args, ["exec", "electron-builder", "--win", "nsis", "--x64"]);
+
+  const macVitePlan = createPlan({
+    command: "pack",
+    project,
+    type: "vite-electron",
+    target: "mac-arm64",
+    checks: [],
+    verify: true,
+    init: false,
+  });
+  assert.deepEqual(macVitePlan.steps.map((step) => step.name), [
+    "Check macOS packaging host",
+    "Build Vite app",
+    "Build macOS DMG",
+    "Verify packaged Vite Electron app",
+    "Show output paths",
+  ]);
+  assert.deepEqual(macVitePlan.steps[2].args, ["exec", "electron-builder", "--mac", "dmg", "--arm64"]);
+
   const javaPlan = createPlan({
     command: "pack",
     project,
@@ -279,8 +324,101 @@ async function testInitRejectsAdaptersWithoutInit() {
   );
 }
 
+async function testViteInitPatchesPackageJson() {
+  await withTempProject({
+    "package.json": JSON.stringify({
+      name: "vite-demo",
+      version: "1.2.3",
+      scripts: { build: "vite build" },
+      devDependencies: { vite: "latest" },
+    }),
+    "index.html": "<div id=\"root\"></div>",
+    "server/index.mjs": "export {};\n",
+  }, async (project) => {
+    const plan = createDetectedInitPlan({
+      command: "init",
+      project,
+      type: "vite-electron",
+      target: "win-x64",
+      checks: [],
+      verify: false,
+      init: true,
+    });
+    const resolvedPlan = await plan;
+    assert.deepEqual(resolvedPlan.steps.map((step) => step.name), ["Initialize Vite Electron packaging"]);
+    await resolvedPlan.steps[0].run();
+
+    const pkg = JSON.parse(await fs.readFile(path.join(project, "package.json"), "utf8"));
+    assert.equal(pkg.main, "electron/main.cjs");
+    assert.equal(pkg.build.productName, "Vite Demo");
+    assert.equal(pkg.build.directories.output, "release");
+    assert.equal(pkg.packAny.electron.serverEntry, "server/index.mjs");
+    assert.equal(pkg.packAny.electron.serverPort, 3001);
+    assert.equal(pkg.devDependencies.electron, "^31.0.0");
+    assert.equal(pkg.devDependencies["electron-builder"], "^24.13.3");
+  });
+}
+
+async function testWorkflowWritesMacosBuildFile() {
+  await withTempProject({
+    "package.json": JSON.stringify({
+      name: "vite-demo",
+      version: "1.2.3",
+      devDependencies: { vite: "latest" },
+      build: { directories: { output: "release" } },
+    }),
+    "index.html": "<div id=\"root\"></div>",
+  }, async (project) => {
+    const plan = await createDetectedWorkflowPlan(parseArgs([
+      "workflow",
+      "--project",
+      project,
+      "--type",
+      "vite-electron",
+      "--target",
+      "mac-arm64",
+    ]));
+
+    assert.deepEqual(plan.steps.map((step) => step.name), ["Write macOS GitHub Actions workflow"]);
+    await plan.steps[0].run();
+
+    const workflowPath = path.join(project, ".github", "workflows", "build-macos.yml");
+    const workflow = await fs.readFile(workflowPath, "utf8");
+    assert.match(workflow, /workflow_dispatch/);
+    assert.match(workflow, /runs-on: macos-latest/);
+    assert.match(workflow, /npx electron-builder --mac dmg --arm64/);
+    assert.match(workflow, /name: macos-mac-arm64/);
+
+    await assert.rejects(() => plan.steps[0].run(), /Workflow already exists/);
+  });
+}
+
+async function testWorkflowDefaultsToDmgTarget() {
+  await withTempProject({
+    "package.json": JSON.stringify({
+      name: "vite-demo",
+      devDependencies: { vite: "latest" },
+    }),
+    "index.html": "<div id=\"root\"></div>",
+  }, async (project) => {
+    const plan = await createDetectedWorkflowPlan(parseArgs([
+      "workflow",
+      "--project",
+      project,
+      "--type",
+      "vite-electron",
+    ]));
+    await plan.steps[0].run();
+
+    const workflow = await fs.readFile(path.join(project, ".github", "workflows", "build-macos.yml"), "utf8");
+    assert.match(workflow, /npx electron-builder --mac dmg --universal/);
+    assert.match(workflow, /name: macos-dmg/);
+  });
+}
+
 async function testAdapterRegistryAndCredits() {
   assert.equal(getAdapter("next-electron").type, "next-electron");
+  assert.equal(getAdapter("vite-electron").type, "vite-electron");
   assert.equal(getAdapter("python").type, "python");
   assert.equal(getAdapter("go").type, "go");
   assert.equal(getAdapter("dotnet").type, "dotnet");
@@ -291,6 +429,7 @@ async function testAdapterRegistryAndCredits() {
   assert.equal(getAdapter("cpp").type, "cpp");
   assert.match(upstreamCredits(), /PyInstaller/);
   assert.match(upstreamCredits(), /electron-builder/);
+  assert.match(upstreamCredits(), /Vite/);
   assert.match(upstreamCredits(), /dotnet publish/);
   assert.match(upstreamCredits(), /TypeScript/);
   assert.match(upstreamCredits(), /yao-pkg/);
@@ -306,6 +445,9 @@ await testParseArgs();
 await testConfigFileResolvesOptions();
 await testPlansUseAdapters();
 await testInitRejectsAdaptersWithoutInit();
+await testViteInitPatchesPackageJson();
+await testWorkflowWritesMacosBuildFile();
+await testWorkflowDefaultsToDmgTarget();
 await testAdapterRegistryAndCredits();
 
 console.log("pack-any core tests passed");

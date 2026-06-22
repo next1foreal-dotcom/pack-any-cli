@@ -7,9 +7,11 @@ import { nextElectronAdapter } from "./next-electron/adapter.mjs";
 import { pythonAdapter } from "./python/pyinstaller.mjs";
 import { rustAdapter } from "./rust/cargo.mjs";
 import { typeScriptAdapter } from "./typescript/pkg.mjs";
+import { viteElectronAdapter } from "./vite-electron/adapter.mjs";
 
 export const adapters = [
   nextElectronAdapter,
+  viteElectronAdapter,
   typeScriptAdapter,
   pythonAdapter,
   goAdapter,
