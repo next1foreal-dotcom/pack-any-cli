@@ -1,6 +1,6 @@
 {
   "name": "pack-any-cli",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A small orchestration CLI that packages common project types by calling proven upstream toolchains.",
   "type": "module",
   "license": "MIT",

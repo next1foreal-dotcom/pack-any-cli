@@ -4,7 +4,7 @@
 
 [简体中文](./README.zh-CN.md) | English
 
-Current version: `0.2.1`.
+Current version: `0.2.2`.
 
 `pack-any` is a small orchestration CLI for packaging common project types by
 calling proven upstream toolchains. It is not a replacement for those tools.

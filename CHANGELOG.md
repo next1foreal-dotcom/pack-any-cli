@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 - 2026-06-22
+
+- Fixed `next-electron` asset preparation to include standalone `node_modules` dependencies.
+- Added test coverage proving copied Next standalone dependencies reach `.electron-next`.
+
 ## 0.2.1 - 2026-06-15
 
 - Added `pack-any workflow` to generate a manual GitHub Actions macOS build workflow.
